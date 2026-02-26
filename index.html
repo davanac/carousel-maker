@@ -54,6 +54,8 @@ header {
 
 .header-meta { font-size: 12px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
 
+.save-flash { color: #2a7 !important; transition: color 0.3s; }
+
 /* ── MAIN ── */
 main { max-width: 1280px; margin: 0 auto; padding: 56px 48px 80px; }
 
@@ -121,8 +123,35 @@ main { max-width: 1280px; margin: 0 auto; padding: 56px 48px 80px; }
   font-size: 12px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+.slide-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin-left: auto;
 }
+
+.btn-reorder, .btn-remove {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 14px;
+  transition: all 0.2s;
+  padding: 0;
+  font-family: inherit;
+}
+.btn-reorder:hover:not(:disabled) { border-color: var(--muted); color: var(--text); }
+.btn-reorder:disabled { opacity: 0.2; cursor: default; }
+.btn-remove { border-color: rgba(204,17,34,0.4); color: var(--red); }
+.btn-remove:hover { background: var(--red); color: white; border-color: var(--red); }
 
 .slide-body {
   display: grid;
@@ -279,6 +308,28 @@ canvas {
 .btn-dl:hover { background: var(--red-dark); }
 .btn-dl:active { transform: scale(0.98); }
 
+/* ── ADD CARD ── */
+.add-card-section {
+  margin-bottom: 56px;
+  text-align: center;
+}
+.btn-add {
+  background: transparent;
+  border: 2px dashed var(--border);
+  color: var(--muted);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 20px 40px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.2s;
+  width: 100%;
+}
+.btn-add:hover { border-color: var(--red); color: var(--red); }
+
 /* ── DOWNLOAD ALL ── */
 .download-all {
   text-align: center;
@@ -318,7 +369,7 @@ canvas {
 
 <header>
   <div class="logo">Carrousel<em>Maker</em></div>
-  <div class="header-meta">Outil d'évaluation · Journalisme numérique</div>
+  <div class="header-meta" id="header-meta">Outil d'évaluation · Journalisme numérique</div>
 </header>
 
 <main>
@@ -326,173 +377,18 @@ canvas {
     <div class="intro-bar"></div>
     <div class="intro-text">
       <h1>Composer un carrousel Instagram</h1>
-      <p>4 slides · 4 rôles éditoriaux stricts. Uploadez vos images, renseignez les textes selon les contraintes de chaque slide, et téléchargez vos visuels prêts à publier en JPEG 1080 × 1350 px (format portrait Instagram 4:5).</p>
+      <p>Composez vos slides, réordonnez-les librement (sauf la première), ajoutez des slides Explication supplémentaires, et téléchargez vos visuels prêts à publier en JPEG 1080 × 1350 px. Vos données sont sauvegardées automatiquement.</p>
     </div>
   </div>
 
-  <!-- ══════════════ SLIDE 1 ══════════════ -->
-  <div class="slide-section">
-    <div class="slide-header">
-      <span class="slide-pill">Slide 01</span>
-      <span class="slide-role">Accroche</span>
-      <span class="slide-role-desc">Thématique · Titre · Sous-titre</span>
-    </div>
-    <div class="slide-body">
-      <div class="slide-controls">
-        <div class="field">
-          <label>Image de fond</label>
-          <div class="upload-zone" id="upload1">
-            <input type="file" accept="image/*" onchange="handleUpload(1, this)">
-            <div class="upload-icon">⊕</div>
-            <p>Glisser une image ou cliquer pour parcourir</p>
-            <div class="file-name" id="file1-name"></div>
-          </div>
-        </div>
-        <div class="field">
-          <label>Thématique <span class="counter" id="c-tag">0 / 30</span></label>
-          <input type="text" id="tag" placeholder="ex : ENVIRONNEMENT" maxlength="30"
-            oninput="updateCounter('tag','c-tag',30); drawSlide1()">
-          <p class="hint">Badge rouge · texte blanc · tout en majuscules</p>
-        </div>
-        <div class="field">
-          <label>Titre <span class="counter" id="c-title1">0 / 150</span></label>
-          <textarea id="title1" rows="3" placeholder="Titre principal de l'article…"
-            oninput="updateCounter('title1','c-title1',150); drawSlide1()"></textarea>
-        </div>
-        <div class="field">
-          <label>Sous-titre <span class="counter" id="c-sub1">0 / 250</span></label>
-          <textarea id="sub1" rows="4" placeholder="Résumé ou accroche complémentaire…"
-            oninput="updateCounter('sub1','c-sub1',250); drawSlide1()"></textarea>
-        </div>
-      </div>
-      <div class="slide-preview">
-        <canvas id="canvas1" width="1080" height="1350" style="width:270px;height:338px;"></canvas>
-        <div class="preview-label">Aperçu · 1080 × 1350 px</div>
-        <button class="btn btn-dl" onclick="downloadSlide(1)">↓ Télécharger Slide 1</button>
-      </div>
-    </div>
+  <div id="cards-container"></div>
+
+  <div class="add-card-section">
+    <button class="btn btn-add" onclick="addExplicationCard()">+ Ajouter une slide Explication</button>
   </div>
 
-  <!-- ══════════════ SLIDE 2 ══════════════ -->
-  <div class="slide-section">
-    <div class="slide-header">
-      <span class="slide-pill">Slide 02</span>
-      <span class="slide-role">Le Chiffre</span>
-      <span class="slide-role-desc">Un seul nombre · plein écran · impact maximal</span>
-    </div>
-    <div class="slide-body">
-      <div class="slide-controls">
-        <div class="field">
-          <label>Image de fond (optionnel)</label>
-          <div class="upload-zone" id="upload2">
-            <input type="file" accept="image/*" onchange="handleUpload(2, this)">
-            <div class="upload-icon">⊕</div>
-            <p>Ou laissez vide et choisissez une couleur ci-dessous</p>
-            <div class="file-name" id="file2-name"></div>
-          </div>
-        </div>
-        <div class="field">
-          <label>Le chiffre <span class="counter" id="c-num">0 / 20</span></label>
-          <input type="text" id="numVal" placeholder="ex : 40 %" maxlength="20"
-            oninput="updateCounter('numVal','c-num',20); drawSlide2()">
-          <p class="hint">Centré · très grand · blanc · seul sur la slide</p>
-        </div>
-        <div class="field">
-          <label>Couleur de fond (sans image)</label>
-          <div class="color-row">
-            <input type="color" id="bgColor2" value="#4a0010" oninput="drawSlide2()">
-            <span class="color-label">Couleur utilisée si aucune image n'est uploadée</span>
-          </div>
-        </div>
-      </div>
-      <div class="slide-preview">
-        <canvas id="canvas2" width="1080" height="1350" style="width:270px;height:338px;"></canvas>
-        <div class="preview-label">Aperçu · 1080 × 1350 px</div>
-        <button class="btn btn-dl" onclick="downloadSlide(2)">↓ Télécharger Slide 2</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════ SLIDE 3 ══════════════ -->
-  <div class="slide-section">
-    <div class="slide-header">
-      <span class="slide-pill">Slide 03</span>
-      <span class="slide-role">Explication</span>
-      <span class="slide-role-desc">Mise en contexte du chiffre · max 350 caractères</span>
-    </div>
-    <div class="slide-body">
-      <div class="slide-controls">
-        <div class="field">
-          <label>Image de fond</label>
-          <div class="upload-zone" id="upload3">
-            <input type="file" accept="image/*" onchange="handleUpload(3, this)">
-            <div class="upload-icon">⊕</div>
-            <p>Glisser une image ou cliquer pour parcourir</p>
-            <div class="file-name" id="file3-name"></div>
-          </div>
-        </div>
-        <div class="field">
-          <label>Texte d'explication <span class="counter" id="c-exp">0 / 350</span></label>
-          <textarea id="expText" rows="6" placeholder="Expliquez le chiffre de la slide précédente en une ou deux phrases précises et sourcées…"
-            oninput="updateCounter('expText','c-exp',350); drawSlide3()"></textarea>
-          <p class="hint">Texte centré · bas de l'image · blanc gras</p>
-        </div>
-      </div>
-      <div class="slide-preview">
-        <canvas id="canvas3" width="1080" height="1350" style="width:270px;height:338px;"></canvas>
-        <div class="preview-label">Aperçu · 1080 × 1350 px</div>
-        <button class="btn btn-dl" onclick="downloadSlide(3)">↓ Télécharger Slide 3</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════ SLIDE 4 ══════════════ -->
-  <div class="slide-section">
-    <div class="slide-header">
-      <span class="slide-pill">Slide 04</span>
-      <span class="slide-role">Citation</span>
-      <span class="slide-role-desc">Voix humaine · Source · Crédibilité</span>
-    </div>
-    <div class="slide-body">
-      <div class="slide-controls">
-        <div class="field">
-          <label>Photo de la source</label>
-          <div class="upload-zone" id="upload4">
-            <input type="file" accept="image/*" onchange="handleUpload(4, this)">
-            <div class="upload-icon">⊕</div>
-            <p>Photo portrait de la personne citée</p>
-            <div class="file-name" id="file4-name"></div>
-          </div>
-        </div>
-        <div class="field">
-          <label>Citation <span class="counter" id="c-quote">0 / 200</span></label>
-          <textarea id="quoteText" rows="4" placeholder="La citation, sans guillemets (ils sont ajoutés automatiquement)…"
-            oninput="updateCounter('quoteText','c-quote',200); drawSlide4()"></textarea>
-          <p class="hint">Italique · centré · haut de l'image · guillemets automatiques</p>
-        </div>
-        <div class="field">
-          <label>Nom de l'auteur <span class="counter" id="c-author">0 / 60</span></label>
-          <input type="text" id="authorName" placeholder="ex : Thomas Wohlgemuth" maxlength="60"
-            oninput="updateCounter('authorName','c-author',60); drawSlide4()">
-          <p class="hint">Badge blanc · tiret + nom · texte rouge</p>
-        </div>
-        <div class="field">
-          <label>Description de la source <span class="counter" id="c-src">0 / 100</span></label>
-          <textarea id="sourceDesc" rows="2" placeholder="ex : expert à l'Institut fédéral de recherches sur la forêt (WSL)"
-            oninput="updateCounter('sourceDesc','c-src',100); drawSlide4()"></textarea>
-        </div>
-      </div>
-      <div class="slide-preview">
-        <canvas id="canvas4" width="1080" height="1350" style="width:270px;height:338px;"></canvas>
-        <div class="preview-label">Aperçu · 1080 × 1350 px</div>
-        <button class="btn btn-dl" onclick="downloadSlide(4)">↓ Télécharger Slide 4</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════ DOWNLOAD ALL ══════════════ -->
   <div class="download-all">
-    <button class="btn btn-all" onclick="downloadAll()">↓ Télécharger les 4 slides</button>
+    <button class="btn btn-all" id="btn-download-all" onclick="downloadAll()">↓ Télécharger toutes les slides</button>
     <p>JPEG · 1080 × 1350 px · qualité 92% · prêt à publier sur Instagram</p>
   </div>
 
@@ -501,7 +397,13 @@ canvas {
 <!-- ══════════════ SCRIPT ══════════════ -->
 <script>
 const W = 1080, H = 1350;
-const images = { 1: null, 2: null, 3: null, 4: null };
+const STORAGE_KEY = 'carousel-maker-state';
+
+// ── State ──
+let cardOrder = [];
+let cardImages = {};
+let cardImageDataUrls = {};
+let nextExpNum = 2;
 
 // ── Font loading for canvas ──
 const fontsReady = (async () => {
@@ -520,32 +422,365 @@ const fontsReady = (async () => {
   }
 })();
 
-// ── Upload handler ──
-function handleUpload(n, input) {
+// ══════════════════════════════════════════
+// CARD TYPE DEFINITIONS
+// ══════════════════════════════════════════
+const CARD_TYPES = {
+  accroche: {
+    role: 'Accroche',
+    desc: 'Thématique · Titre · Sous-titre',
+    controls(id) {
+      return `
+        <div class="field">
+          <label>Image de fond</label>
+          <div class="upload-zone">
+            <input type="file" accept="image/*">
+            <div class="upload-icon">⊕</div>
+            <p>Glisser une image ou cliquer pour parcourir</p>
+            <div class="file-name"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Thématique <span class="counter" data-for="tag" data-max="30">0 / 30</span></label>
+          <input type="text" data-field="tag" placeholder="ex : ENVIRONNEMENT" maxlength="30">
+          <p class="hint">Badge rouge · texte blanc · tout en majuscules</p>
+        </div>
+        <div class="field">
+          <label>Titre <span class="counter" data-for="title" data-max="150">0 / 150</span></label>
+          <textarea data-field="title" rows="3" placeholder="Titre principal de l'article…"></textarea>
+        </div>
+        <div class="field">
+          <label>Sous-titre <span class="counter" data-for="sub" data-max="250">0 / 250</span></label>
+          <textarea data-field="sub" rows="4" placeholder="Résumé ou accroche complémentaire…"></textarea>
+        </div>`;
+    },
+    draw: drawAccroche
+  },
+  chiffre: {
+    role: 'Le Chiffre',
+    desc: 'Un seul nombre · plein écran · impact maximal',
+    controls(id) {
+      return `
+        <div class="field">
+          <label>Image de fond (optionnel)</label>
+          <div class="upload-zone">
+            <input type="file" accept="image/*">
+            <div class="upload-icon">⊕</div>
+            <p>Ou laissez vide et choisissez une couleur ci-dessous</p>
+            <div class="file-name"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Le chiffre <span class="counter" data-for="numVal" data-max="20">0 / 20</span></label>
+          <input type="text" data-field="numVal" placeholder="ex : 40 %" maxlength="20">
+          <p class="hint">Centré · très grand · blanc · seul sur la slide</p>
+        </div>
+        <div class="field">
+          <label>Couleur de fond (sans image)</label>
+          <div class="color-row">
+            <input type="color" data-field="bgColor" value="#4a0010">
+            <span class="color-label">Couleur utilisée si aucune image n'est uploadée</span>
+          </div>
+        </div>`;
+    },
+    draw: drawChiffre
+  },
+  explication: {
+    role: 'Explication',
+    desc: 'Mise en contexte · max 350 caractères',
+    controls(id) {
+      return `
+        <div class="field">
+          <label>Image de fond</label>
+          <div class="upload-zone">
+            <input type="file" accept="image/*">
+            <div class="upload-icon">⊕</div>
+            <p>Glisser une image ou cliquer pour parcourir</p>
+            <div class="file-name"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Texte d'explication <span class="counter" data-for="expText" data-max="350">0 / 350</span></label>
+          <textarea data-field="expText" rows="6" placeholder="Expliquez le chiffre de la slide précédente en une ou deux phrases précises et sourcées…"></textarea>
+          <p class="hint">Texte centré · bas de l'image · blanc gras</p>
+        </div>`;
+    },
+    draw: drawExplication
+  },
+  citation: {
+    role: 'Citation',
+    desc: 'Voix humaine · Source · Crédibilité',
+    controls(id) {
+      return `
+        <div class="field">
+          <label>Photo de la source</label>
+          <div class="upload-zone">
+            <input type="file" accept="image/*">
+            <div class="upload-icon">⊕</div>
+            <p>Photo portrait de la personne citée</p>
+            <div class="file-name"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Citation <span class="counter" data-for="quoteText" data-max="200">0 / 200</span></label>
+          <textarea data-field="quoteText" rows="4" placeholder="La citation, sans guillemets (ils sont ajoutés automatiquement)…"></textarea>
+          <p class="hint">Italique · centré · haut de l'image · guillemets automatiques</p>
+        </div>
+        <div class="field">
+          <label>Nom de l'auteur <span class="counter" data-for="authorName" data-max="60">0 / 60</span></label>
+          <input type="text" data-field="authorName" placeholder="ex : Thomas Wohlgemuth" maxlength="60">
+          <p class="hint">Badge blanc · tiret + nom · texte rouge</p>
+        </div>
+        <div class="field">
+          <label>Description de la source <span class="counter" data-for="sourceDesc" data-max="100">0 / 100</span></label>
+          <textarea data-field="sourceDesc" rows="2" placeholder="ex : expert à l'Institut fédéral de recherches sur la forêt (WSL)"></textarea>
+        </div>`;
+    },
+    draw: drawCitation
+  }
+};
+
+// ══════════════════════════════════════════
+// DOM HELPERS
+// ══════════════════════════════════════════
+function getSection(cardId) {
+  return document.querySelector(`[data-card-id="${cardId}"]`);
+}
+function getCanvas(cardId) {
+  return getSection(cardId).querySelector('canvas');
+}
+function getFieldValue(cardId, name) {
+  const el = getSection(cardId).querySelector(`[data-field="${name}"]`);
+  return el ? el.value : '';
+}
+
+// ══════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════
+function renderAllCards() {
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '';
+  cardOrder.forEach((card, i) => {
+    container.appendChild(createCardElement(card, i));
+  });
+  updateSlideNumbers();
+  updateDownloadButton();
+  fontsReady.then(() => {
+    cardOrder.forEach(c => drawCardById(c.id));
+  });
+}
+
+function createCardElement(card, index) {
+  const type = CARD_TYPES[card.type];
+  const section = document.createElement('div');
+  section.className = 'slide-section';
+  section.dataset.cardId = card.id;
+
+  const isFirst = card.type === 'accroche';
+
+  section.innerHTML = `
+    <div class="slide-header">
+      <span class="slide-pill">Slide ${String(index + 1).padStart(2, '0')}</span>
+      <span class="slide-role">${type.role}</span>
+      <span class="slide-role-desc">${type.desc}</span>
+      ${!isFirst ? `
+        <div class="slide-actions">
+          ${card.removable ? `<button class="btn-remove" data-action="remove" title="Supprimer">✕</button>` : ''}
+          <button class="btn-reorder" data-action="up" title="Monter">▲</button>
+          <button class="btn-reorder" data-action="down" title="Descendre">▼</button>
+        </div>` : ''}
+    </div>
+    <div class="slide-body">
+      <div class="slide-controls">${type.controls(card.id)}</div>
+      <div class="slide-preview">
+        <canvas width="${W}" height="${H}" style="width:270px;height:338px;"></canvas>
+        <div class="preview-label">Aperçu · 1080 × 1350 px</div>
+        <button class="btn btn-dl" data-action="download">↓ Télécharger Slide ${index + 1}</button>
+      </div>
+    </div>`;
+
+  // ── Button events ──
+  section.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const action = btn.dataset.action;
+      if (action === 'up') moveCard(card.id, -1);
+      else if (action === 'down') moveCard(card.id, 1);
+      else if (action === 'remove') removeCard(card.id);
+      else if (action === 'download') downloadSlide(card.id);
+    });
+  });
+
+  // ── Input events → redraw + save ──
+  section.querySelectorAll('input[type="text"], textarea, input[type="color"]').forEach(input => {
+    input.addEventListener('input', () => {
+      updateCounters(section);
+      drawCardById(card.id);
+      saveToStorage();
+    });
+  });
+
+  // ── File upload ──
+  const fileInput = section.querySelector('input[type="file"]');
+  const uploadZone = section.querySelector('.upload-zone');
+  if (fileInput) {
+    fileInput.addEventListener('change', () => handleUpload(card.id, fileInput));
+  }
+  if (uploadZone) {
+    uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+    uploadZone.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (!file || !file.type.startsWith('image/')) return;
+      loadImageFile(card.id, file, section);
+    });
+  }
+
+  return section;
+}
+
+// ══════════════════════════════════════════
+// COUNTERS
+// ══════════════════════════════════════════
+function updateCounters(section) {
+  section.querySelectorAll('.counter[data-for]').forEach(counter => {
+    const fieldName = counter.dataset.for;
+    const max = parseInt(counter.dataset.max);
+    const field = section.querySelector(`[data-field="${fieldName}"]`);
+    if (field) {
+      const len = field.value.length;
+      counter.textContent = `${len} / ${max}`;
+      counter.classList.toggle('over', len > max);
+    }
+  });
+}
+
+// ══════════════════════════════════════════
+// IMAGE HANDLING
+// ══════════════════════════════════════════
+function handleUpload(cardId, input) {
   const file = input.files[0];
   if (!file) return;
-  document.getElementById(`file${n}-name`).textContent = '✓ ' + file.name;
+  const section = getSection(cardId);
+  loadImageFile(cardId, file, section);
+}
+
+function loadImageFile(cardId, file, section) {
+  section.querySelector('.file-name').textContent = '✓ ' + file.name;
   const reader = new FileReader();
   reader.onload = e => {
+    const dataUrl = e.target.result;
+    cardImageDataUrls[cardId] = dataUrl;
     const img = new Image();
     img.onload = () => {
-      images[n] = img;
-      [drawSlide1, drawSlide2, drawSlide3, drawSlide4][n - 1]();
+      cardImages[cardId] = img;
+      drawCardById(cardId);
+      saveToStorage();
     };
-    img.src = e.target.result;
+    img.src = dataUrl;
   };
   reader.readAsDataURL(file);
 }
 
-// ── Counter update ──
-function updateCounter(fieldId, counterId, max) {
-  const len = document.getElementById(fieldId).value.length;
-  const el = document.getElementById(counterId);
-  el.textContent = `${len} / ${max}`;
-  el.classList.toggle('over', len > max);
+function restoreImage(cardId, dataUrl) {
+  if (!dataUrl) return;
+  cardImageDataUrls[cardId] = dataUrl;
+  const img = new Image();
+  img.onload = () => {
+    cardImages[cardId] = img;
+    const section = getSection(cardId);
+    if (section) {
+      section.querySelector('.file-name').textContent = '✓ Image restaurée';
+    }
+    drawCardById(cardId);
+  };
+  img.src = dataUrl;
 }
 
-// ── Draw image cover-fill ──
+// ══════════════════════════════════════════
+// REORDER / ADD / REMOVE
+// ══════════════════════════════════════════
+function moveCard(cardId, direction) {
+  const idx = cardOrder.findIndex(c => c.id === cardId);
+  const newIdx = idx + direction;
+  if (newIdx < 1 || newIdx >= cardOrder.length) return;
+
+  // Swap in state
+  [cardOrder[idx], cardOrder[newIdx]] = [cardOrder[newIdx], cardOrder[idx]];
+
+  // Move DOM elements
+  const container = document.getElementById('cards-container');
+  const children = [...container.children];
+  if (direction === -1) {
+    container.insertBefore(children[idx], children[newIdx]);
+  } else {
+    container.insertBefore(children[newIdx], children[idx]);
+  }
+
+  updateSlideNumbers();
+  saveToStorage();
+}
+
+function addExplicationCard() {
+  const newId = 'exp-' + nextExpNum++;
+  const newCard = { id: newId, type: 'explication', removable: true };
+  cardOrder.push(newCard);
+
+  const container = document.getElementById('cards-container');
+  const index = cardOrder.length - 1;
+  container.appendChild(createCardElement(newCard, index));
+
+  updateSlideNumbers();
+  updateDownloadButton();
+  fontsReady.then(() => drawCardById(newId));
+  saveToStorage();
+
+  // Scroll to new card
+  getSection(newId).scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function removeCard(cardId) {
+  const idx = cardOrder.findIndex(c => c.id === cardId);
+  if (idx === -1) return;
+  cardOrder.splice(idx, 1);
+
+  const section = getSection(cardId);
+  if (section) section.remove();
+
+  delete cardImages[cardId];
+  delete cardImageDataUrls[cardId];
+
+  updateSlideNumbers();
+  updateDownloadButton();
+  saveToStorage();
+}
+
+function updateSlideNumbers() {
+  const container = document.getElementById('cards-container');
+  const sections = [...container.children];
+  sections.forEach((section, i) => {
+    const pill = section.querySelector('.slide-pill');
+    if (pill) pill.textContent = `Slide ${String(i + 1).padStart(2, '0')}`;
+
+    const dlBtn = section.querySelector('[data-action="download"]');
+    if (dlBtn) dlBtn.textContent = `↓ Télécharger Slide ${i + 1}`;
+
+    const upBtn = section.querySelector('[data-action="up"]');
+    const downBtn = section.querySelector('[data-action="down"]');
+    if (upBtn) upBtn.disabled = (i <= 1);
+    if (downBtn) downBtn.disabled = (i >= sections.length - 1);
+  });
+}
+
+function updateDownloadButton() {
+  const btn = document.getElementById('btn-download-all');
+  btn.textContent = `↓ Télécharger les ${cardOrder.length} slides`;
+}
+
+// ══════════════════════════════════════════
+// CANVAS DRAWING UTILITIES
+// ══════════════════════════════════════════
 function drawCover(ctx, img) {
   if (!img) return;
   const r = img.width / img.height;
@@ -556,7 +791,6 @@ function drawCover(ctx, img) {
   ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
 }
 
-// ── Wrap text into lines ──
 function wrapLines(ctx, text, maxW) {
   const words = text.split(' ');
   const lines = [];
@@ -570,7 +804,6 @@ function wrapLines(ctx, text, maxW) {
   return lines;
 }
 
-// ── Draw wrapped text, return total height ──
 function drawWrapped(ctx, text, cx, y, maxW, lineH, align) {
   ctx.textAlign = align || 'left';
   ctx.textBaseline = 'top';
@@ -579,7 +812,6 @@ function drawWrapped(ctx, text, cx, y, maxW, lineH, align) {
   return lines.length * lineH;
 }
 
-// ── Rounded rectangle path ──
 function rrect(ctx, x, y, w, h, r) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -590,7 +822,6 @@ function rrect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-// ── Vertical gradient overlay ──
 function gradOverlay(ctx, topAlpha, botAlpha) {
   const g = ctx.createLinearGradient(0, 0, 0, H);
   g.addColorStop(0, `rgba(0,0,0,${topAlpha})`);
@@ -600,23 +831,28 @@ function gradOverlay(ctx, topAlpha, botAlpha) {
 }
 
 // ══════════════════════════════════════════
-// SLIDE 1 — Accroche
+// DRAW FUNCTIONS PER CARD TYPE
 // ══════════════════════════════════════════
-async function drawSlide1() {
+function drawCardById(cardId) {
+  const card = cardOrder.find(c => c.id === cardId);
+  if (!card) return;
+  CARD_TYPES[card.type].draw(cardId);
+}
+
+async function drawAccroche(cardId) {
   await fontsReady;
-  const ctx = document.getElementById('canvas1').getContext('2d');
+  const ctx = getCanvas(cardId).getContext('2d');
   ctx.clearRect(0, 0, W, H);
 
-  if (images[1]) { drawCover(ctx, images[1]); gradOverlay(ctx, 0.25, 0.65); }
-  else            { ctx.fillStyle = '#1c1c1c'; ctx.fillRect(0, 0, W, H); }
+  if (cardImages[cardId]) { drawCover(ctx, cardImages[cardId]); gradOverlay(ctx, 0.25, 0.65); }
+  else { ctx.fillStyle = '#1c1c1c'; ctx.fillRect(0, 0, W, H); }
 
   const PAD = 90;
-  const tag   = (document.getElementById('tag').value || '').toUpperCase();
-  const title = document.getElementById('title1').value;
-  const sub   = document.getElementById('sub1').value;
+  const tag   = getFieldValue(cardId, 'tag').toUpperCase();
+  const title = getFieldValue(cardId, 'title');
+  const sub   = getFieldValue(cardId, 'sub');
   let y = 480;
 
-  // Tag badge
   if (tag) {
     ctx.font = 'bold 34px "Barlow Condensed", sans-serif';
     const tw = ctx.measureText(tag).width;
@@ -629,7 +865,6 @@ async function drawSlide1() {
     y += bh + 44;
   }
 
-  // Title
   if (title) {
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 76px "Barlow Condensed", sans-serif';
@@ -637,7 +872,6 @@ async function drawSlide1() {
     y += h + 52;
   }
 
-  // Subtitle
   if (sub) {
     ctx.fillStyle = 'rgba(255,255,255,0.88)';
     ctx.font = '36px "Barlow", sans-serif';
@@ -645,24 +879,20 @@ async function drawSlide1() {
   }
 }
 
-// ══════════════════════════════════════════
-// SLIDE 2 — Le Chiffre
-// ══════════════════════════════════════════
-async function drawSlide2() {
+async function drawChiffre(cardId) {
   await fontsReady;
-  const ctx = document.getElementById('canvas2').getContext('2d');
+  const ctx = getCanvas(cardId).getContext('2d');
   ctx.clearRect(0, 0, W, H);
 
-  if (images[2]) { drawCover(ctx, images[2]); gradOverlay(ctx, 0.30, 0.50); }
-  else           { ctx.fillStyle = document.getElementById('bgColor2').value; ctx.fillRect(0, 0, W, H); }
+  if (cardImages[cardId]) { drawCover(ctx, cardImages[cardId]); gradOverlay(ctx, 0.30, 0.50); }
+  else { ctx.fillStyle = getFieldValue(cardId, 'bgColor') || '#4a0010'; ctx.fillRect(0, 0, W, H); }
 
-  const num = document.getElementById('numVal').value;
+  const num = getFieldValue(cardId, 'numVal');
   if (num) {
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 280px "Barlow Condensed", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    // Shadow for depth
     ctx.shadowColor = 'rgba(0,0,0,0.4)';
     ctx.shadowBlur = 30;
     ctx.fillText(num, W / 2, H / 2);
@@ -670,23 +900,19 @@ async function drawSlide2() {
   }
 }
 
-// ══════════════════════════════════════════
-// SLIDE 3 — Explication
-// ══════════════════════════════════════════
-async function drawSlide3() {
+async function drawExplication(cardId) {
   await fontsReady;
-  const ctx = document.getElementById('canvas3').getContext('2d');
+  const ctx = getCanvas(cardId).getContext('2d');
   ctx.clearRect(0, 0, W, H);
 
-  if (images[3]) { drawCover(ctx, images[3]); gradOverlay(ctx, 0.35, 0.80); }
-  else           { ctx.fillStyle = '#111'; ctx.fillRect(0, 0, W, H); }
+  if (cardImages[cardId]) { drawCover(ctx, cardImages[cardId]); gradOverlay(ctx, 0.35, 0.80); }
+  else { ctx.fillStyle = '#111'; ctx.fillRect(0, 0, W, H); }
 
-  const text = document.getElementById('expText').value;
+  const text = getFieldValue(cardId, 'expText');
   if (text) {
     const PAD = 90;
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 46px "Barlow Condensed", sans-serif';
-    // Measure block height to anchor at bottom
     const lines = wrapLines(ctx, text, W - PAD * 2);
     const lh = 64;
     const blockH = lines.length * lh;
@@ -699,32 +925,27 @@ async function drawSlide3() {
   }
 }
 
-// ══════════════════════════════════════════
-// SLIDE 4 — Citation
-// ══════════════════════════════════════════
-async function drawSlide4() {
+async function drawCitation(cardId) {
   await fontsReady;
-  const ctx = document.getElementById('canvas4').getContext('2d');
+  const ctx = getCanvas(cardId).getContext('2d');
   ctx.clearRect(0, 0, W, H);
 
-  if (images[4]) { drawCover(ctx, images[4]); gradOverlay(ctx, 0.20, 0.55); }
-  else           { ctx.fillStyle = '#2a2a2a'; ctx.fillRect(0, 0, W, H); }
+  if (cardImages[cardId]) { drawCover(ctx, cardImages[cardId]); gradOverlay(ctx, 0.20, 0.55); }
+  else { ctx.fillStyle = '#2a2a2a'; ctx.fillRect(0, 0, W, H); }
 
-  const quote  = document.getElementById('quoteText').value;
-  const author = document.getElementById('authorName').value;
-  const srcD   = document.getElementById('sourceDesc').value;
+  const quote  = getFieldValue(cardId, 'quoteText');
+  const author = getFieldValue(cardId, 'authorName');
+  const srcD   = getFieldValue(cardId, 'sourceDesc');
   const PAD = 90;
   let y = 240;
 
   if (quote) {
-    // Opening guillemet
     ctx.fillStyle = 'rgba(255,255,255,0.85)';
     ctx.font = 'italic bold 150px "Playfair Display", "Times New Roman", serif';
     ctx.textAlign = 'left'; ctx.textBaseline = 'top';
     ctx.fillText('\u201C', PAD - 10, y - 30);
     y += 80;
 
-    // Quote text
     ctx.fillStyle = '#ffffff';
     ctx.font = 'italic bold 60px "Playfair Display", "Times New Roman", serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
@@ -733,7 +954,6 @@ async function drawSlide4() {
     qLines.forEach((l, i) => ctx.fillText(l, W / 2, y + i * qlh));
     y += qLines.length * qlh;
 
-    // Closing guillemet
     ctx.fillStyle = 'rgba(255,255,255,0.85)';
     ctx.font = 'italic bold 150px "Playfair Display", "Times New Roman", serif';
     ctx.textAlign = 'right'; ctx.textBaseline = 'top';
@@ -768,12 +988,13 @@ async function drawSlide4() {
 // ══════════════════════════════════════════
 // DOWNLOAD
 // ══════════════════════════════════════════
-function downloadSlide(n) {
-  const canvas = document.getElementById(`canvas${n}`);
+function downloadSlide(cardId) {
+  const canvas = getCanvas(cardId);
+  const idx = cardOrder.findIndex(c => c.id === cardId);
   canvas.toBlob(blob => {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `slide_0${n}.jpg`;
+    a.download = `slide_${String(idx + 1).padStart(2, '0')}.jpg`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -782,41 +1003,130 @@ function downloadSlide(n) {
 }
 
 async function downloadAll() {
-  for (let i = 1; i <= 4; i++) {
+  for (let i = 0; i < cardOrder.length; i++) {
     await new Promise(r => setTimeout(r, 350));
-    downloadSlide(i);
+    downloadSlide(cardOrder[i].id);
   }
 }
 
 // ══════════════════════════════════════════
-// DRAG & DROP
+// LOCAL STORAGE
 // ══════════════════════════════════════════
-document.querySelectorAll('.upload-zone').forEach(zone => {
-  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-  zone.addEventListener('drop', e => {
-    e.preventDefault();
-    zone.classList.remove('drag-over');
-    const n = parseInt(zone.id.replace('upload', ''));
-    const file = e.dataTransfer.files[0];
-    if (!file || !file.type.startsWith('image/')) return;
-    document.getElementById(`file${n}-name`).textContent = '✓ ' + file.name;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const img = new Image();
-      img.onload = () => { images[n] = img; [drawSlide1,drawSlide2,drawSlide3,drawSlide4][n-1](); };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
+function collectFormData() {
+  const data = {};
+  cardOrder.forEach(card => {
+    const section = getSection(card.id);
+    if (!section) return;
+    const fields = {};
+    section.querySelectorAll('[data-field]').forEach(el => {
+      fields[el.dataset.field] = el.value;
+    });
+    data[card.id] = fields;
   });
-});
+  return data;
+}
+
+function saveToStorage() {
+  try {
+    const payload = {
+      cardOrder: cardOrder,
+      nextExpNum: nextExpNum,
+      formData: collectFormData(),
+      imageData: cardImageDataUrls,
+      version: 2
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    flashSave();
+  } catch (e) {
+    // If quota exceeded (likely images too large), save without images
+    try {
+      const payload = {
+        cardOrder: cardOrder,
+        nextExpNum: nextExpNum,
+        formData: collectFormData(),
+        imageData: {},
+        version: 2
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      flashSave();
+    } catch (e2) {
+      console.warn('localStorage save failed:', e2);
+    }
+  }
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!data.cardOrder || !Array.isArray(data.cardOrder)) return null;
+    return data;
+  } catch (e) {
+    return null;
+  }
+}
+
+function restoreFormData(formData) {
+  if (!formData) return;
+  cardOrder.forEach(card => {
+    const section = getSection(card.id);
+    const fields = formData[card.id];
+    if (!section || !fields) return;
+    Object.entries(fields).forEach(([name, value]) => {
+      const el = section.querySelector(`[data-field="${name}"]`);
+      if (el) el.value = value;
+    });
+    updateCounters(section);
+  });
+}
+
+function restoreImages(imageData) {
+  if (!imageData) return;
+  Object.entries(imageData).forEach(([cardId, dataUrl]) => {
+    if (dataUrl && getSection(cardId)) {
+      restoreImage(cardId, dataUrl);
+    }
+  });
+}
+
+let saveTimer;
+function flashSave() {
+  const el = document.getElementById('header-meta');
+  el.textContent = '✓ Sauvegardé';
+  el.classList.add('save-flash');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    el.textContent = 'Outil d\'évaluation · Journalisme numérique';
+    el.classList.remove('save-flash');
+  }, 1500);
+}
 
 // ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
-fontsReady.then(() => {
-  drawSlide1(); drawSlide2(); drawSlide3(); drawSlide4();
-});
+(function init() {
+  const saved = loadFromStorage();
+  if (saved) {
+    cardOrder = saved.cardOrder;
+    nextExpNum = saved.nextExpNum || 2;
+    renderAllCards();
+    restoreFormData(saved.formData);
+    if (saved.imageData) restoreImages(saved.imageData);
+    // Redraw after form data is restored
+    fontsReady.then(() => {
+      cardOrder.forEach(c => drawCardById(c.id));
+    });
+  } else {
+    cardOrder = [
+      { id: 'accroche', type: 'accroche', removable: false },
+      { id: 'chiffre', type: 'chiffre', removable: false },
+      { id: 'exp-1', type: 'explication', removable: false },
+      { id: 'citation', type: 'citation', removable: false },
+    ];
+    renderAllCards();
+  }
+})();
 </script>
 </body>
 </html>
