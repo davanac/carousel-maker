@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carrousel Maker — Outil d'évaluation journalistique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@1,400;1,700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --red: #CC1122;
+  --red-dark: #aa0d1c;
+  --bg: #0d0d0d;
+  --surface: #161616;
+  --surface2: #1e1e1e;
+  --border: #2a2a2a;
+  --text: #f0ede8;
+  --muted: #777;
+  --muted2: #444;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* ── HEADER ── */
+header {
+  border-bottom: 1px solid var(--border);
+  padding: 20px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: rgba(13,13,13,0.95);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+}
+
+.logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.logo em { color: var(--red); font-style: normal; }
+
+.header-meta { font-size: 12px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* ── MAIN ── */
+main { max-width: 1280px; margin: 0 auto; padding: 56px 48px 80px; }
+
+/* ── INTRO ── */
+.intro {
+  margin-bottom: 72px;
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+}
+.intro-bar { width: 4px; background: var(--red); flex-shrink: 0; align-self: stretch; }
+.intro-text h1 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 38px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+.intro-text p { color: var(--muted); font-size: 14px; max-width: 660px; }
+
+/* ── SLIDE SECTION ── */
+.slide-section {
+  margin-bottom: 56px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.slide-section:focus-within { border-color: #3a3a3a; }
+
+.slide-header {
+  background: var(--surface);
+  padding: 18px 32px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.slide-pill {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--red);
+  border: 1px solid var(--red);
+  padding: 5px 14px;
+  white-space: nowrap;
+}
+
+.slide-role {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.slide-role-desc {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-left: auto;
+}
+
+.slide-body {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+}
+
+/* ── CONTROLS ── */
+.slide-controls {
+  padding: 32px;
+  border-right: 1px solid var(--border);
+}
+
+.field { margin-bottom: 28px; }
+.field:last-child { margin-bottom: 0; }
+
+label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.counter { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--muted2); }
+.counter.over { color: var(--red); }
+
+input[type="text"], textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  padding: 12px 16px;
+  resize: vertical;
+  transition: border-color 0.2s;
+  line-height: 1.5;
+}
+input[type="text"]:focus, textarea:focus {
+  outline: none;
+  border-color: var(--red);
+}
+input[type="text"]::placeholder, textarea::placeholder { color: var(--muted2); }
+
+.hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--muted2);
+  font-style: italic;
+}
+
+/* Color picker */
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+input[type="color"] {
+  width: 52px;
+  height: 36px;
+  padding: 2px 4px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  border-radius: 2px;
+}
+.color-label { font-size: 13px; color: var(--muted); }
+
+/* Upload zone */
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: 2px;
+  padding: 24px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  background: var(--surface2);
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--red);
+  background: rgba(204,17,34,0.04);
+}
+.upload-zone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.upload-icon { font-size: 24px; color: var(--muted2); line-height: 1; }
+.upload-zone p { font-size: 12px; color: var(--muted); }
+.file-name { font-size: 11px; color: var(--red); font-weight: 600; word-break: break-all; }
+
+/* ── PREVIEW ── */
+.slide-preview {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  background: #0a0a0a;
+}
+
+canvas {
+  display: block;
+  border-radius: 2px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+}
+
+.preview-label {
+  font-size: 10px;
+  color: var(--muted2);
+  text-align: center;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 2px;
+}
+
+.btn-dl {
+  background: var(--red);
+  color: white;
+  font-size: 13px;
+  padding: 11px 20px;
+  width: 100%;
+}
+.btn-dl:hover { background: var(--red-dark); }
+.btn-dl:active { transform: scale(0.98); }
+
+/* ── DOWNLOAD ALL ── */
+.download-all {
+  text-align: center;
+  padding: 72px 0 0;
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+}
+
+.download-all .btn-all {
+  background: var(--text);
+  color: var(--bg);
+  font-size: 16px;
+  padding: 18px 56px;
+  letter-spacing: 0.12em;
+}
+.download-all .btn-all:hover { background: var(--red); color: white; }
+
+.download-all p {
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 960px) {
+  main { padding: 32px 24px 64px; }
+  header { padding: 16px 24px; }
+  .slide-body { grid-template-columns: 1fr; }
+  .slide-controls { border-right: none; border-bottom: 1px solid var(--border); }
+  .slide-preview { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  .slide-role-desc { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Carrousel<em>Maker</em></div>
+  <div class="header-meta">Outil d'évaluation · Journalisme numérique</div>
+</header>
+
+<main>
+  <div class="intro">
+    <div class="intro-bar"></div>
+    <div class="intro-text">
+      <h1>Composer un carrousel Instagram</h1>
+      <p>4 slides · 4 rôles éditoriaux stricts. Uploadez vos images, renseignez les textes selon les contraintes de chaque slide, et téléchargez vos visuels prêts à publier en JPEG 1080 × 1350 px (format portrait Instagram 4:5).</p>
+    </div>
+  </div>
+
+  <!-- ══════════════ SLIDE 1 ══════════════ -->
+  <div class="slide-section">
+    <div class="slide-header">
+      <span class="slide-pill">Slide 01</span>
+      <span class="slide-role">Accroche</span>
+      <span class="slide-role-desc">Thématique · Titre · Sous-titre</span>
+    </div>
+    <div class="slide-body">
+      <div class="slide-controls">
+        <div class="field">
+          <label>Image de fond</label>
+          <div class="upload-zone" id="upload1">
+            <input type="file" accept="image/*" onchange="handleUpload(1, this)">
+            <div class="upload-icon">⊕</div>
+            <p>Glisser une image ou cliquer pour parcourir</p>
+            <div class="file-name" id="file1-name"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Thématique <span class="counter" id="c-tag">0 / 30</span></label>
+          <input type="text" id="tag" placeholder="ex : ENVIRONNEMENT" maxlength="30"
+            oninput="updateCounter('tag','c-tag',30); drawSlide1()">
+          <p class="hint">Badge rouge · texte blanc · tout en majuscules</p>
+        </div>
+        <div class="field">
+          <label>Titre <span class="counter" id="c-title1">0 / 150</span></label>
+          <textarea id="title1" rows="3" placeholder="Titre principal de l'article…"
+            oninput="updateCounter('title1','c-title1',150); drawSlide1()"></textarea>
+        </div>
+        <div class="field">
+          <label>Sous-titre <span class="counter" id="c-sub1">0 / 250</span></label>
+          <textarea id="sub1" rows="4" placeholder="Résumé ou accroche complémentaire…"
+            oninput="updateCounter('sub1','c-sub1',250); drawSlide1()"></textarea>
+        </div>
+      </div>
+      <div class="slide-preview">
+        <canvas id="canvas1" width="1080" height="1350" style="width:270px;height:338px;"></canvas>
+        <div class="preview-label">Aperçu · 1080 × 1350 px</div>
+        <button class="btn btn-dl" onclick="downloadSlide(1)">↓ Télécharger Slide 1</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ SLIDE 2 ══════════════ -->
+  <div class="slide-section">
+    <div class="slide-header">
+      <span class="slide-pill">Slide 02</span>
+      <span class="slide-role">Le Chiffre</span>
+      <span class="slide-role-desc">Un seul nombre · plein écran · impact maximal</span>
+    </div>
+    <div class="slide-body">
+      <div class="slide-controls">
+        <div class="field">
+          <label>Image de fond (optionnel)</label>
+          <div class="upload-zone" id="upload2">
+            <input type="file" accept="image/*" onchange="handleUpload(2, this)">
+            <div class="upload-icon">⊕</div>
+            <p>Ou laissez vide et choisissez une couleur ci-dessous</p>
+            <div class="file-name" id="file2-name"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Le chiffre <span class="counter" id="c-num">0 / 20</span></label>
+          <input type="text" id="numVal" placeholder="ex : 40 %" maxlength="20"
+            oninput="updateCounter('numVal','c-num',20); drawSlide2()">
+          <p class="hint">Centré · très grand · blanc · seul sur la slide</p>
+        </div>
+        <div class="field">
+          <label>Couleur de fond (sans image)</label>
+          <div class="color-row">
+            <input type="color" id="bgColor2" value="#4a0010" oninput="drawSlide2()">
+            <span class="color-label">Couleur utilisée si aucune image n'est uploadée</span>
+          </div>
+        </div>
+      </div>
+      <div class="slide-preview">
+        <canvas id="canvas2" width="1080" height="1350" style="width:270px;height:338px;"></canvas>
+        <div class="preview-label">Aperçu · 1080 × 1350 px</div>
+        <button class="btn btn-dl" onclick="downloadSlide(2)">↓ Télécharger Slide 2</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ SLIDE 3 ══════════════ -->
+  <div class="slide-section">
+    <div class="slide-header">
+      <span class="slide-pill">Slide 03</span>
+      <span class="slide-role">Explication</span>
+      <span class="slide-role-desc">Mise en contexte du chiffre · max 350 caractères</span>
+    </div>
+    <div class="slide-body">
+      <div class="slide-controls">
+        <div class="field">
+          <label>Image de fond</label>
+          <div class="upload-zone" id="upload3">
+            <input type="file" accept="image/*" onchange="handleUpload(3, this)">
+            <div class="upload-icon">⊕</div>
+            <p>Glisser une image ou cliquer pour parcourir</p>
+            <div class="file-name" id="file3-name"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Texte d'explication <span class="counter" id="c-exp">0 / 350</span></label>
+          <textarea id="expText" rows="6" placeholder="Expliquez le chiffre de la slide précédente en une ou deux phrases précises et sourcées…"
+            oninput="updateCounter('expText','c-exp',350); drawSlide3()"></textarea>
+          <p class="hint">Texte centré · bas de l'image · blanc gras</p>
+        </div>
+      </div>
+      <div class="slide-preview">
+        <canvas id="canvas3" width="1080" height="1350" style="width:270px;height:338px;"></canvas>
+        <div class="preview-label">Aperçu · 1080 × 1350 px</div>
+        <button class="btn btn-dl" onclick="downloadSlide(3)">↓ Télécharger Slide 3</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ SLIDE 4 ══════════════ -->
+  <div class="slide-section">
+    <div class="slide-header">
+      <span class="slide-pill">Slide 04</span>
+      <span class="slide-role">Citation</span>
+      <span class="slide-role-desc">Voix humaine · Source · Crédibilité</span>
+    </div>
+    <div class="slide-body">
+      <div class="slide-controls">
+        <div class="field">
+          <label>Photo de la source</label>
+          <div class="upload-zone" id="upload4">
+            <input type="file" accept="image/*" onchange="handleUpload(4, this)">
+            <div class="upload-icon">⊕</div>
+            <p>Photo portrait de la personne citée</p>
+            <div class="file-name" id="file4-name"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Citation <span class="counter" id="c-quote">0 / 200</span></label>
+          <textarea id="quoteText" rows="4" placeholder="La citation, sans guillemets (ils sont ajoutés automatiquement)…"
+            oninput="updateCounter('quoteText','c-quote',200); drawSlide4()"></textarea>
+          <p class="hint">Italique · centré · haut de l'image · guillemets automatiques</p>
+        </div>
+        <div class="field">
+          <label>Nom de l'auteur <span class="counter" id="c-author">0 / 60</span></label>
+          <input type="text" id="authorName" placeholder="ex : Thomas Wohlgemuth" maxlength="60"
+            oninput="updateCounter('authorName','c-author',60); drawSlide4()">
+          <p class="hint">Badge blanc · tiret + nom · texte rouge</p>
+        </div>
+        <div class="field">
+          <label>Description de la source <span class="counter" id="c-src">0 / 100</span></label>
+          <textarea id="sourceDesc" rows="2" placeholder="ex : expert à l'Institut fédéral de recherches sur la forêt (WSL)"
+            oninput="updateCounter('sourceDesc','c-src',100); drawSlide4()"></textarea>
+        </div>
+      </div>
+      <div class="slide-preview">
+        <canvas id="canvas4" width="1080" height="1350" style="width:270px;height:338px;"></canvas>
+        <div class="preview-label">Aperçu · 1080 × 1350 px</div>
+        <button class="btn btn-dl" onclick="downloadSlide(4)">↓ Télécharger Slide 4</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ DOWNLOAD ALL ══════════════ -->
+  <div class="download-all">
+    <button class="btn btn-all" onclick="downloadAll()">↓ Télécharger les 4 slides</button>
+    <p>JPEG · 1080 × 1350 px · qualité 92% · prêt à publier sur Instagram</p>
+  </div>
+
+</main>
+
+<!-- ══════════════ SCRIPT ══════════════ -->
+<script>
+const W = 1080, H = 1350;
+const images = { 1: null, 2: null, 3: null, 4: null };
+
+// ── Font loading for canvas ──
+const fontsReady = (async () => {
+  const defs = [
+    { name: 'Barlow Condensed', url: 'https://fonts.gstatic.com/s/barlowcondensed/v12/HTxxL3I-JCGChYJ8VI-L6OO_au7B43nyR3mxpOoB.woff2', weight: '700' },
+    { name: 'Barlow', url: 'https://fonts.gstatic.com/s/barlow/v12/7cHpv4kjgoGqM7E3_-gc4FAtlT47dw.woff2', weight: '400' },
+    { name: 'Barlow', url: 'https://fonts.gstatic.com/s/barlow/v12/7cHqv4kjgoGqM7E3p-gc4FAtlT47dw.woff2', weight: '600' },
+    { name: 'Playfair Display', url: 'https://fonts.gstatic.com/s/playfairdisplay/v37/nuFiD-vYSZviVYUb_rj3ij__anPXDTnohkk7yRZjDRqFIReCTZktd64.woff2', weight: '700', style: 'italic' },
+  ];
+  for (const d of defs) {
+    try {
+      const f = new FontFace(d.name, `url(${d.url})`, { weight: d.weight, style: d.style || 'normal' });
+      const loaded = await f.load();
+      document.fonts.add(loaded);
+    } catch (e) { /* fallback to system fonts */ }
+  }
+})();
+
+// ── Upload handler ──
+function handleUpload(n, input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById(`file${n}-name`).textContent = '✓ ' + file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      images[n] = img;
+      [drawSlide1, drawSlide2, drawSlide3, drawSlide4][n - 1]();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Counter update ──
+function updateCounter(fieldId, counterId, max) {
+  const len = document.getElementById(fieldId).value.length;
+  const el = document.getElementById(counterId);
+  el.textContent = `${len} / ${max}`;
+  el.classList.toggle('over', len > max);
+}
+
+// ── Draw image cover-fill ──
+function drawCover(ctx, img) {
+  if (!img) return;
+  const r = img.width / img.height;
+  const cr = W / H;
+  let sw, sh, sx, sy;
+  if (r > cr) { sh = img.height; sw = sh * cr; sx = (img.width - sw) / 2; sy = 0; }
+  else         { sw = img.width; sh = sw / cr; sx = 0; sy = (img.height - sh) / 2; }
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
+}
+
+// ── Wrap text into lines ──
+function wrapLines(ctx, text, maxW) {
+  const words = text.split(' ');
+  const lines = [];
+  let cur = '';
+  for (const w of words) {
+    const test = cur ? cur + ' ' + w : w;
+    if (ctx.measureText(test).width > maxW && cur) { lines.push(cur); cur = w; }
+    else cur = test;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+// ── Draw wrapped text, return total height ──
+function drawWrapped(ctx, text, cx, y, maxW, lineH, align) {
+  ctx.textAlign = align || 'left';
+  ctx.textBaseline = 'top';
+  const lines = wrapLines(ctx, text, maxW);
+  lines.forEach((l, i) => ctx.fillText(l, cx, y + i * lineH));
+  return lines.length * lineH;
+}
+
+// ── Rounded rectangle path ──
+function rrect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+// ── Vertical gradient overlay ──
+function gradOverlay(ctx, topAlpha, botAlpha) {
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, `rgba(0,0,0,${topAlpha})`);
+  g.addColorStop(1, `rgba(0,0,0,${botAlpha})`);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+}
+
+// ══════════════════════════════════════════
+// SLIDE 1 — Accroche
+// ══════════════════════════════════════════
+async function drawSlide1() {
+  await fontsReady;
+  const ctx = document.getElementById('canvas1').getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+
+  if (images[1]) { drawCover(ctx, images[1]); gradOverlay(ctx, 0.25, 0.65); }
+  else            { ctx.fillStyle = '#1c1c1c'; ctx.fillRect(0, 0, W, H); }
+
+  const PAD = 90;
+  const tag   = (document.getElementById('tag').value || '').toUpperCase();
+  const title = document.getElementById('title1').value;
+  const sub   = document.getElementById('sub1').value;
+  let y = 480;
+
+  // Tag badge
+  if (tag) {
+    ctx.font = 'bold 34px "Barlow Condensed", sans-serif';
+    const tw = ctx.measureText(tag).width;
+    const bw = tw + 52, bh = 60;
+    rrect(ctx, PAD, y, bw, bh, 4);
+    ctx.fillStyle = '#CC1122'; ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(tag, PAD + 26, y + bh / 2);
+    y += bh + 44;
+  }
+
+  // Title
+  if (title) {
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 76px "Barlow Condensed", sans-serif';
+    const h = drawWrapped(ctx, title, PAD, y, W - PAD * 2, 90, 'left');
+    y += h + 52;
+  }
+
+  // Subtitle
+  if (sub) {
+    ctx.fillStyle = 'rgba(255,255,255,0.88)';
+    ctx.font = '36px "Barlow", sans-serif';
+    drawWrapped(ctx, sub, PAD, y, W - PAD * 2, 50, 'left');
+  }
+}
+
+// ══════════════════════════════════════════
+// SLIDE 2 — Le Chiffre
+// ══════════════════════════════════════════
+async function drawSlide2() {
+  await fontsReady;
+  const ctx = document.getElementById('canvas2').getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+
+  if (images[2]) { drawCover(ctx, images[2]); gradOverlay(ctx, 0.30, 0.50); }
+  else           { ctx.fillStyle = document.getElementById('bgColor2').value; ctx.fillRect(0, 0, W, H); }
+
+  const num = document.getElementById('numVal').value;
+  if (num) {
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 280px "Barlow Condensed", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    // Shadow for depth
+    ctx.shadowColor = 'rgba(0,0,0,0.4)';
+    ctx.shadowBlur = 30;
+    ctx.fillText(num, W / 2, H / 2);
+    ctx.shadowBlur = 0;
+  }
+}
+
+// ══════════════════════════════════════════
+// SLIDE 3 — Explication
+// ══════════════════════════════════════════
+async function drawSlide3() {
+  await fontsReady;
+  const ctx = document.getElementById('canvas3').getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+
+  if (images[3]) { drawCover(ctx, images[3]); gradOverlay(ctx, 0.35, 0.80); }
+  else           { ctx.fillStyle = '#111'; ctx.fillRect(0, 0, W, H); }
+
+  const text = document.getElementById('expText').value;
+  if (text) {
+    const PAD = 90;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 46px "Barlow Condensed", sans-serif';
+    // Measure block height to anchor at bottom
+    const lines = wrapLines(ctx, text, W - PAD * 2);
+    const lh = 64;
+    const blockH = lines.length * lh;
+    const startY = H - blockH - 160;
+    lines.forEach((l, i) => {
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(l, W / 2, startY + i * lh);
+    });
+  }
+}
+
+// ══════════════════════════════════════════
+// SLIDE 4 — Citation
+// ══════════════════════════════════════════
+async function drawSlide4() {
+  await fontsReady;
+  const ctx = document.getElementById('canvas4').getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+
+  if (images[4]) { drawCover(ctx, images[4]); gradOverlay(ctx, 0.20, 0.55); }
+  else           { ctx.fillStyle = '#2a2a2a'; ctx.fillRect(0, 0, W, H); }
+
+  const quote  = document.getElementById('quoteText').value;
+  const author = document.getElementById('authorName').value;
+  const srcD   = document.getElementById('sourceDesc').value;
+  const PAD = 90;
+  let y = 240;
+
+  if (quote) {
+    // Opening guillemet
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.font = 'italic bold 150px "Playfair Display", "Times New Roman", serif';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText('\u201C', PAD - 10, y - 30);
+    y += 80;
+
+    // Quote text
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'italic bold 60px "Playfair Display", "Times New Roman", serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    const qLines = wrapLines(ctx, quote, W - PAD * 2);
+    const qlh = 78;
+    qLines.forEach((l, i) => ctx.fillText(l, W / 2, y + i * qlh));
+    y += qLines.length * qlh;
+
+    // Closing guillemet
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.font = 'italic bold 150px "Playfair Display", "Times New Roman", serif';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+    ctx.fillText('\u201D', W - PAD + 20, y - 60);
+    y += 60;
+  }
+
+  y += 50;
+
+  if (author) {
+    ctx.font = 'bold 36px "Barlow Condensed", sans-serif';
+    const badgeText = '\u2014 ' + author;
+    const bw = Math.min(ctx.measureText(badgeText).width + 80, W - PAD * 2);
+    const bh = 68;
+    const bx = (W - bw) / 2;
+    rrect(ctx, bx, y, bw, bh, 6);
+    ctx.fillStyle = '#ffffff'; ctx.fill();
+    ctx.fillStyle = '#CC1122';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(badgeText, W / 2, y + bh / 2);
+    y += bh + 28;
+  }
+
+  if (srcD) {
+    ctx.fillStyle = 'rgba(255,255,255,0.72)';
+    ctx.font = '30px "Barlow", sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    drawWrapped(ctx, srcD, W / 2, y, W - PAD * 2, 42, 'center');
+  }
+}
+
+// ══════════════════════════════════════════
+// DOWNLOAD
+// ══════════════════════════════════════════
+function downloadSlide(n) {
+  const canvas = document.getElementById(`canvas${n}`);
+  canvas.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `slide_0${n}.jpg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  }, 'image/jpeg', 0.92);
+}
+
+async function downloadAll() {
+  for (let i = 1; i <= 4; i++) {
+    await new Promise(r => setTimeout(r, 350));
+    downloadSlide(i);
+  }
+}
+
+// ══════════════════════════════════════════
+// DRAG & DROP
+// ══════════════════════════════════════════
+document.querySelectorAll('.upload-zone').forEach(zone => {
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    const n = parseInt(zone.id.replace('upload', ''));
+    const file = e.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    document.getElementById(`file${n}-name`).textContent = '✓ ' + file.name;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => { images[n] = img; [drawSlide1,drawSlide2,drawSlide3,drawSlide4][n-1](); };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+});
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+fontsReady.then(() => {
+  drawSlide1(); drawSlide2(); drawSlide3(); drawSlide4();
+});
+</script>
+</body>
+</html>
