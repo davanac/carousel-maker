@@ -1,8 +1,8 @@
 # Carrousel Maker
 
-Outil de composition de carrousels Instagram pour l'évaluation journalistique — IHECS.
+Outil de composition de carrousels Instagram pour l'évaluation journalistique.
 
-Carrousel Maker permet aux étudiants en journalisme de créer rapidement des carrousels Instagram structurés à partir d'un sujet d'actualité. L'outil guide la composition en imposant une structure éditoriale précise et des limites de caractères pour chaque slide.
+Carrousel Maker permet de créer rapidement des carrousels Instagram structurés à partir d'un sujet d'actualité. L'outil guide la composition en imposant une structure éditoriale précise et des limites de caractères pour chaque slide.
 
 ## Utilisation
 
